@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "hapi plugin that process a schedule of endpoint calls and data",
   "main": "index.js",
+  "bin": {
+    "cronquest": "./bin.js"
+  },
   "author": "First+Third",
   "license": "MIT",
   "scripts": {

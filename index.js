@@ -13,17 +13,20 @@ const log = Logr.createLogger({
   }
 });
 
-const processEndpoint = (endpointName, endpointSpec) => wreck[endpointSpec.method](endpointSpec.endpoint, {
-  payload: endpointSpec.payload || {},
-  headers: endpointSpec.headers || {}
-}, (err, res, payload) => {
-  if (err) {
-    return log(['error'], err);
-  }
-  if (res === 200) {
-    log(['notice'], payload);
-  }
-});
+const processEndpoint = (endpointName, endpointSpec) => {
+  log(['notice', endpointName], endpointSpec);
+  wreck[endpointSpec.method](endpointSpec.endpoint, {
+    payload: endpointSpec.payload || {},
+    headers: endpointSpec.headers || {}
+  }, (err, res, payload) => {
+    if (err) {
+      return log(['error', endpointName], err);
+    }
+    if (res === 200) {
+      log(['notice'], payload);
+    }
+  });
+};
 
 // store all intervals so we can gracefull stop them later:
 const allIntervals = [];
@@ -32,7 +35,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
-  log(['notice'], `registered ${endpointName} to process ${endpointSpec.interval}`);
+  log(['notice', endpointName], `registered to process ${endpointSpec.interval}`);
 };
 
 module.exports = (jobsPath, options) => {
@@ -52,4 +55,4 @@ const stop = () => {
   });
 };
 module.exports.stop = stop;
-// process.on('exit', () => stop());
+process.on('exit', () => stop());
