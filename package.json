@@ -12,6 +12,12 @@
     "extends": "firstandthird"
   },
   "dependencies": {
+    "js-yaml": "^3.8.3",
+    "later": "^1.2.0",
+    "later-timezone": "^1.0.0",
+    "logr": "^2.1.0",
+    "logr-flat": "^2.0.0",
+    "wreck": "^12.1.0"
   },
   "devDependencies": {
     "eslint": "^3.9.1",
