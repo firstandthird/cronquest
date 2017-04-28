@@ -15,7 +15,7 @@ const log = Logr.createLogger({
 });
 
 const processEndpoint = (endpointName, endpointSpec) => {
-  log(['notice', endpointName], endpointSpec);
+  log(['notice', 'running', endpointName], `running ${endpointName}`);
   if (!endpointSpec.endpoint) {
     log(['error'], `${endpointName} didn't provide an endpoint`);
     return;
@@ -28,7 +28,7 @@ const processEndpoint = (endpointName, endpointSpec) => {
       return log(['error', endpointName], err);
     }
     if (res === 200) {
-      log(['notice'], payload);
+      log(['success', endpointName], payload);
     }
   });
 };
@@ -40,7 +40,10 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
-  log(['notice', endpointName], `registered to process ${endpointSpec.interval}`);
+  log(['notice', endpointName], {
+    message: `registered ${endpointName}`,
+    options: endpointSpec
+  });
 };
 
 module.exports = (jobsPath, options) => {
@@ -51,7 +54,6 @@ module.exports = (jobsPath, options) => {
   } else {
     specs = envload('CRON');
   }
-  console.log(specs);
   // load a laterjs instance based on the timezone
   const later = require('later');
   if (specs.timezone) {
