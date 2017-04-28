@@ -3,6 +3,7 @@ const Logr = require('logr');
 const logrFlat = require('logr-flat');
 const wreck = require('wreck');
 const fs = require('fs');
+const envload = require('envload');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -15,7 +16,11 @@ const log = Logr.createLogger({
 
 const processEndpoint = (endpointName, endpointSpec) => {
   log(['notice', endpointName], endpointSpec);
-  wreck[endpointSpec.method](endpointSpec.endpoint, {
+  if (!endpointSpec.endpoint) {
+    log(['error'], `${endpointName} didn't provide an endpoint`);
+    return;
+  }
+  wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
     payload: endpointSpec.payload || {},
     headers: endpointSpec.headers || {}
   }, (err, res, payload) => {
@@ -40,12 +45,23 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
 
 module.exports = (jobsPath, options) => {
   // load-parse the yaml joblist
-  const allJobSpecs = require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8'));
+  let specs = {};
+  if (jobsPath) {
+    specs = require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8'));
+  } else {
+    specs = envload('CRON');
+  }
+  console.log(specs);
   // load a laterjs instance based on the timezone
   const later = require('later');
-  require('later-timezone').timezone(later, allJobSpecs.timezone);
-  Object.keys(allJobSpecs.jobs).forEach((jobName) => {
-    registerEndpoint(later, jobName, allJobSpecs.jobs[jobName]);
+  if (specs.timezone) {
+    require('later-timezone').timezone(later, specs.timezone);
+  }
+  if (!specs.jobs) {
+    throw new Error('no jobs found');
+  }
+  Object.keys(specs.jobs).forEach((jobName) => {
+    registerEndpoint(later, jobName, specs.jobs[jobName]);
   });
 };
 const stop = () => {

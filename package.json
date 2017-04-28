@@ -15,6 +15,7 @@
     "extends": "firstandthird"
   },
   "dependencies": {
+    "envload": "0.0.1",
     "js-yaml": "^3.8.3",
     "later": "^1.2.0",
     "later-timezone": "^1.0.0",

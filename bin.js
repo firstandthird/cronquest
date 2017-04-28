@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env node
 'use strict';
 const main = require('./index.js');
-main(process.argv[process.argv.length - 1]);
+main(process.argv[2]);
