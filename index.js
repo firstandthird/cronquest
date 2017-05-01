@@ -4,6 +4,7 @@ const logrFlat = require('logr-flat');
 const wreck = require('wreck');
 const fs = require('fs');
 const envload = require('envload');
+const humanDate = require('human-date');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -51,6 +52,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
     nextRun: first,
+    runIn: humanDate.relativeTime(first),
     options: endpointSpec
   });
 };

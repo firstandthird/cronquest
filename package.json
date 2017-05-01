@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "envload": "0.1.0",
+    "human-date": "1.4.0",
     "js-yaml": "^3.8.3",
     "later": "^1.2.0",
     "later-timezone": "^1.0.0",
