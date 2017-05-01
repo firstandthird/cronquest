@@ -37,6 +37,9 @@ const processEndpoint = (endpointName, endpointSpec) => {
 const allIntervals = [];
 const registerEndpoint = (later, endpointName, endpointSpec) => {
   const laterInterval = later.parse.text(endpointSpec.interval);
+  if (laterInterval.error !== -1) {
+    throw new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
+  }
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));

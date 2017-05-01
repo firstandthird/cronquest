@@ -38,3 +38,11 @@ tap.test('can load a schedule of intervals', (t) => {
     t.end();
   }, 8000);
 });
+
+tap.test('will error if there is a bad interval', (t) => {
+  try {
+    cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'));
+  } catch (e) {
+    t.end();
+  }
+});
