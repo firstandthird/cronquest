@@ -9,15 +9,19 @@ const log = Logr.createLogger({
   type: 'flat',
   reporters: {
     flat: {
-      reporter: logrFlat
+      reporter: logrFlat,
+      options: {
+        timestamp: false,
+        appColor: true
+      }
     }
   }
 });
 
 const processEndpoint = (endpointName, endpointSpec) => {
-  log(['notice', 'running', endpointName], `running ${endpointName}`);
+  log([endpointName, 'notice', 'running'], `running ${endpointName}`);
   if (!endpointSpec.endpoint) {
-    log(['error'], `${endpointName} didn't provide an endpoint`);
+    log([endpointName, 'error'], `${endpointName} didn't provide an endpoint`);
     return;
   }
   wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
@@ -25,10 +29,10 @@ const processEndpoint = (endpointName, endpointSpec) => {
     headers: endpointSpec.headers || {}
   }, (err, res, payload) => {
     if (err) {
-      return log(['error', endpointName], err);
+      return log([endpointName, 'error'], err);
     }
     if (res === 200) {
-      log(['success', endpointName], payload);
+      log([endpointName, 'success'], payload);
     }
   });
 };
@@ -44,7 +48,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
-  log(['notice', endpointName], {
+  log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
     nextRun: first,
     options: endpointSpec
