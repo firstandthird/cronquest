@@ -37,6 +37,8 @@ const processEndpoint = (endpointName, endpointSpec) => {
 const allIntervals = [];
 const registerEndpoint = (later, endpointName, endpointSpec) => {
   const laterInterval = later.parse.text(endpointSpec.interval);
+  const first = later.schedule(laterInterval).next(1);
+  log(['notice'], `First occurence of ${endpointName} will be on ${first}`);
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
