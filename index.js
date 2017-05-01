@@ -68,6 +68,7 @@ module.exports = (jobsPath, options) => {
   // load a laterjs instance based on the timezone
   const later = require('later');
   if (specs.timezone) {
+    log(['info'], `Using timezone ${specs.timezone}`);
     require('later-timezone').timezone(later, specs.timezone);
   }
   if (!specs.jobs) {
