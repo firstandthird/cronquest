@@ -45,7 +45,8 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
   log(['notice', endpointName], {
-    message: `registered ${endpointName}, first execution will be on ${first}`,
+    message: `registered ${endpointName}`,
+    nextRun: first,
     options: endpointSpec
   });
 };
