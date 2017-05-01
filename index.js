@@ -41,12 +41,11 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     throw new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
   }
   const first = later.schedule(laterInterval).next(1);
-  log(['notice'], `First occurence of ${endpointName} will be on ${first}`);
   allIntervals.push(later.setInterval(() => {
     processEndpoint(endpointName, endpointSpec);
   }, laterInterval));
   log(['notice', endpointName], {
-    message: `registered ${endpointName}`,
+    message: `registered ${endpointName}, first execution will be on ${first}`,
     options: endpointSpec
   });
 };
