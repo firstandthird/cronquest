@@ -1,0 +1,10 @@
+timezone: 'America/Chicago'
+jobs:
+  dailyEmails:
+    interval: 'all day long and all night strong'
+    endpoint: 'http://localhost:8080/api/jobs/blah'
+    method: 'post'
+    payload:
+      p1: 2
+    headers:
+      h1: 3
