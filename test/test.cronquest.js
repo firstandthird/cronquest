@@ -55,3 +55,12 @@ tap.test('also runs shell scripts', (t) => {
     t.end();
   }, 8000);
 });
+
+tap.test('also runs shell scripts with no payload specified', (t) => {
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'noPayload.yaml'));
+  // wait a few seconds for the endpoint to be called by cronquest:
+  setTimeout(() => {
+    // verify endpoint was called:
+    t.end();
+  }, 8000);
+});

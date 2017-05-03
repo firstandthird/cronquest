@@ -20,7 +20,7 @@ const log = Logr.createLogger({
   }
 });
 const processScript = (scriptName, scriptSpec) => {
-  runshell(scriptSpec.script, scriptSpec.payload, (err, data) => {
+  runshell(scriptSpec.script, scriptSpec.payload || {}, (err, data) => {
     if (err) {
       return log([scriptName, 'error'], err);
     }
