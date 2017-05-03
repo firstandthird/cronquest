@@ -1,7 +1,7 @@
 timezone: 'America/Chicago'
 jobs:
   dailyEmails:
-    now: true
+    runNow: true
     interval: 'every 2 hours'
     endpoint: 'http://localhost:8080/api/jobs/blah'
     method: 'post'

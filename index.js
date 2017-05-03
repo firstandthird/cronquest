@@ -64,7 +64,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     return processScript(endpointName, endpointSpec);
   };
   // if marked 'now' then fire it immediately:
-  if (endpointSpec.now === true) {
+  if (endpointSpec.runNow === true) {
     executeInterval();
   }
   allIntervals.push(later.setInterval(executeInterval, laterInterval));
