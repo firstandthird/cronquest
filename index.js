@@ -5,6 +5,7 @@ const wreck = require('wreck');
 const fs = require('fs');
 const envload = require('envload');
 const humanDate = require('human-date');
+const runshell = require('runshell');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -18,9 +19,16 @@ const log = Logr.createLogger({
     }
   }
 });
+const processScript = (scriptName, scriptSpec) => {
+  runshell(scriptSpec.script, scriptSpec.payload, (err, data) => {
+    if (err) {
+      return log([scriptName, 'error'], err);
+    }
+    log([scriptName, 'success'], data);
+  });
+};
 
 const processEndpoint = (endpointName, endpointSpec) => {
-  log([endpointName, 'notice', 'running'], `running ${endpointName}`);
   if (!endpointSpec.endpoint) {
     log([endpointName, 'error'], `${endpointName} didn't provide an endpoint`);
     return;
@@ -47,7 +55,13 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   }
   const first = later.schedule(laterInterval).next(1);
   allIntervals.push(later.setInterval(() => {
-    processEndpoint(endpointName, endpointSpec);
+    log([endpointName, 'notice', 'running'], `running ${endpointName}`);
+    // 'endpoint' means it is a url to invoke:
+    if (endpointSpec.endpoint) {
+      return processEndpoint(endpointName, endpointSpec);
+    }
+    // 'script means it is a path to a shell script:
+    return processScript(endpointName, endpointSpec);
   }, laterInterval));
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
