@@ -29,7 +29,6 @@ const processScript = (scriptName, scriptSpec) => {
 };
 
 const processEndpoint = (endpointName, endpointSpec) => {
-  log([endpointName, 'notice', 'running'], `running ${endpointName}`);
   if (!endpointSpec.endpoint) {
     log([endpointName, 'error'], `${endpointName} didn't provide an endpoint`);
     return;
@@ -56,6 +55,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   }
   const first = later.schedule(laterInterval).next(1);
   allIntervals.push(later.setInterval(() => {
+    log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
     if (endpointSpec.endpoint) {
       return processEndpoint(endpointName, endpointSpec);
