@@ -1,0 +1,7 @@
+timezone: 'America/Chicago'
+jobs:
+  dailyEmails:
+    interval: 'every 2 seconds'
+    script: 'ls'
+    payload:
+      args: '-al'

@@ -46,3 +46,12 @@ tap.test('will error if there is a bad interval', (t) => {
     t.end();
   }
 });
+
+tap.test('also runs shell scripts', (t) => {
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'script.yaml'));
+  // wait a few seconds for the endpoint to be called by cronquest:
+  setTimeout(() => {
+    // verify endpoint was called:
+    t.end();
+  }, 8000);
+});
