@@ -1,0 +1,11 @@
+timezone: 'America/Chicago'
+jobs:
+  dailyEmails:
+    runNow: true
+    interval: 'every 2 hours'
+    endpoint: 'http://localhost:8080/api/jobs/blah'
+    method: 'post'
+    payload:
+      p1: 2
+    headers:
+      h1: 3

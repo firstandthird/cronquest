@@ -54,7 +54,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     throw new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
   }
   const first = later.schedule(laterInterval).next(1);
-  allIntervals.push(later.setInterval(() => {
+  const executeInterval = () => {
     log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
     if (endpointSpec.endpoint) {
@@ -62,7 +62,12 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     }
     // 'script means it is a path to a shell script:
     return processScript(endpointName, endpointSpec);
-  }, laterInterval));
+  };
+  // if marked 'now' then fire it immediately:
+  if (endpointSpec.runNow === true) {
+    executeInterval();
+  }
+  allIntervals.push(later.setInterval(executeInterval, laterInterval));
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
     nextRun: first,
