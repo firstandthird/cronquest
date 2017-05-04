@@ -16,6 +16,7 @@
     "extends": "firstandthird"
   },
   "dependencies": {
+    "aug": "^1.0.2",
     "envload": "0.1.0",
     "human-date": "1.4.0",
     "js-yaml": "^3.8.3",

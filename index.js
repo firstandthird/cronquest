@@ -6,6 +6,7 @@ const fs = require('fs');
 const envload = require('envload');
 const humanDate = require('human-date');
 const runshell = require('runshell');
+const aug = require('aug');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -64,7 +65,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     return processScript(endpointName, endpointSpec);
   };
   // if marked 'now' then fire it immediately:
-  if (endpointSpec.runNow === true) {
+  if (endpointSpec.runNow) {
     executeInterval();
   }
   allIntervals.push(later.setInterval(executeInterval, laterInterval));
@@ -80,7 +81,7 @@ module.exports = (jobsPath, options) => {
   // load-parse the yaml joblist
   let specs = {};
   if (jobsPath) {
-    specs = require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8'));
+    specs = aug(true, require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8')), envload('CRON'));
   } else {
     specs = envload('CRON');
   }
