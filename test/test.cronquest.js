@@ -39,6 +39,28 @@ tap.test('can load a schedule of intervals', (t) => {
   }, 8000);
 });
 
+tap.test('will augment script with env variables', (t) => {
+  let x = 0;
+  server.route({
+    path: '/api/jobs/blah',
+    method: 'POST',
+    handler(request, reply) {
+      t.equal(request.payload.p1, 2);
+      t.equal(request.headers.h1, '3');
+      x++;
+      reply({ success: 'true' });
+    }
+  });
+  process.env.CRON_JOBS__DAILY_EMAILS__RUN_NOW = true;
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
+  // wait a few seconds for the endpoint to be called by cronquest:
+  setTimeout(() => {
+    // verify endpoint was called:
+    t.equal(x > 0, true);
+    t.end();
+  }, 1000);
+});
+
 tap.test('processes with the "now" label are run immediately after registration too', (t) => {
   let x = 0;
   server.route({
