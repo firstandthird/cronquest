@@ -7,7 +7,6 @@ const envload = require('envload');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const aug = require('aug');
-
 const log = Logr.createLogger({
   type: 'flat',
   reporters: {
@@ -54,7 +53,6 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   if (laterInterval.error !== -1) {
     throw new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
   }
-  const first = later.schedule(laterInterval).next(1);
   const executeInterval = () => {
     log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
@@ -69,9 +67,10 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     executeInterval();
   }
   allIntervals.push(later.setInterval(executeInterval, laterInterval));
+  const first = later.firstRunMoment;
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
-    nextRun: first,
+    nextRun: first.format('h:mma z'),
     runIn: humanDate.relativeTime(first),
     options: endpointSpec
   });

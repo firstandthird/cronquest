@@ -21,7 +21,7 @@
     "human-date": "1.4.0",
     "js-yaml": "^3.8.3",
     "later": "^1.2.0",
-    "later-timezone": "^1.0.0",
+    "later-timezone": "^1.1.0",
     "logr": "^2.1.0",
     "logr-flat": "^2.0.0",
     "runshell": "^0.2.0",
