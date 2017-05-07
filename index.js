@@ -80,7 +80,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
 // will fetch spec from either url, yaml file, or process.env:
 const getSpecs = (jobsPath, callback) => {
   if (jobsPath) {
-    if (jobsPath.startsWith('http://')) {
+    if (jobsPath.startsWith('http://') || jobsPath.startsWith('https://')) {
       return wreck.get(jobsPath, {}, (err, res, payload) => {
         if (err) {
           return callback(err);
