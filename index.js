@@ -77,27 +77,45 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   });
 };
 
+// will fetch spec from either url, yaml file, or process.env:
+const getSpecs = (jobsPath, callback) => {
+  if (jobsPath) {
+    if (jobsPath.startsWith('http://') || jobsPath.startsWith('https://')) {
+      return wreck.get(jobsPath, {}, (err, res, payload) => {
+        if (err) {
+          return callback(err);
+        }
+        if (res.statusCode === 200) {
+          return callback(null, aug(true, JSON.parse(payload.toString())), envload('CRON'));
+        }
+      });
+    }
+    return callback(null, aug(true, require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8')), envload('CRON')));
+  }
+  callback(null, envload('CRON'));
+};
+
 module.exports = (jobsPath, options) => {
   // load-parse the yaml joblist
-  let specs = {};
-  if (jobsPath) {
-    specs = aug(true, require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8')), envload('CRON'));
-  } else {
-    specs = envload('CRON');
-  }
-  // load a laterjs instance based on the timezone
-  const later = require('later');
-  if (specs.timezone) {
-    log(['info'], `Using timezone ${specs.timezone}`);
-    require('later-timezone').timezone(later, specs.timezone);
-  }
-  if (!specs.jobs) {
-    throw new Error('no jobs found');
-  }
-  Object.keys(specs.jobs).forEach((jobName) => {
-    registerEndpoint(later, jobName, specs.jobs[jobName]);
+  getSpecs(jobsPath, (err, specs) => {
+    if (err) {
+      return log([jobsPath, 'error'], err);
+    }
+    // load a laterjs instance based on the timezone
+    const later = require('later');
+    if (specs.timezone) {
+      log(['info'], `Using timezone ${specs.timezone}`);
+      require('later-timezone').timezone(later, specs.timezone);
+    }
+    if (!specs.jobs) {
+      throw new Error('no jobs found');
+    }
+    Object.keys(specs.jobs).forEach((jobName) => {
+      registerEndpoint(later, jobName, specs.jobs[jobName]);
+    });
   });
 };
+
 const stop = () => {
   log(['notice'], 'closing all scheduled intervals');
   allIntervals.forEach((interval) => {
