@@ -70,7 +70,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   const first = later.firstRunMoment;
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
-    nextRun: first.format('h:mma z'),
+    nextRun: first.format('MMM Do YYYY, h:mma z'),
     runIn: humanDate.relativeTime(first),
     options: endpointSpec
   });
