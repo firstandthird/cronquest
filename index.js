@@ -90,12 +90,14 @@ module.exports = (jobsPath, callback) => {
     if (!specs.jobs) {
       return callback(new Error('no jobs found'));
     }
-    Object.keys(specs.jobs).forEach((jobName) => {
+    const jobNames = Object.keys(specs.jobs);
+    for (let i = 0; i < jobNames.length; i++) {
+      const jobName = jobNames[i];
       const registration = registerEndpoint(later, jobName, specs.jobs[jobName]);
       if (registration instanceof Error) {
         return callback(registration);
       }
-    });
+    }
   });
 };
 const stop = () => {
