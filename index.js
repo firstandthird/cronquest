@@ -7,6 +7,7 @@ const envload = require('envload');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const aug = require('aug');
+const confi = require('confi');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -78,24 +79,22 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
 };
 
 module.exports = (jobsPath, options) => {
-  // load-parse the yaml joblist
-  let specs = {};
-  if (jobsPath) {
-    specs = aug(true, require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8')), envload('CRON'));
-  } else {
-    specs = envload('CRON');
-  }
-  // load a laterjs instance based on the timezone
-  const later = require('later');
-  if (specs.timezone) {
-    log(['info'], `Using timezone ${specs.timezone}`);
-    require('later-timezone').timezone(later, specs.timezone);
-  }
-  if (!specs.jobs) {
-    throw new Error('no jobs found');
-  }
-  Object.keys(specs.jobs).forEach((jobName) => {
-    registerEndpoint(later, jobName, specs.jobs[jobName]);
+  confi({ configFile: jobsPath, prefix: 'CRON' }, (err, specs) => {
+    if (err) {
+      throw err;
+    }
+    // load a laterjs instance based on the timezone
+    const later = require('later');
+    if (specs.timezone) {
+      log(['info'], `Using timezone ${specs.timezone}`);
+      require('later-timezone').timezone(later, specs.timezone);
+    }
+    if (!specs.jobs) {
+      throw new Error('no jobs found');
+    }
+    Object.keys(specs.jobs).forEach((jobName) => {
+      registerEndpoint(later, jobName, specs.jobs[jobName]);
+    });
   });
 };
 const stop = () => {
