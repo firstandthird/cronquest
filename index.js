@@ -78,7 +78,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
 module.exports = (jobsPath, callback) => {
   // load-parse the yaml joblist
   const options = { envVars: 'CRON' };
-  if (jobsPath.startsWith('http://') || jobsPath.startsWith('https://')) {
+  if (jobsPath && (jobsPath.startsWith('http://') || jobsPath.startsWith('https://'))) {
     options.url = jobsPath;
   } else {
     options.configFile = jobsPath;
