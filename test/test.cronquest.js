@@ -83,11 +83,10 @@ tap.test('processes with the "now" label are run immediately after registration 
 });
 
 tap.test('will error if there is a bad interval', (t) => {
-  try {
-    cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'));
-  } catch (e) {
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'), (err) => {
+    t.notEqual(err, null);
     t.end();
-  }
+  });
 });
 
 tap.test('also runs shell scripts', (t) => {

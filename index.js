@@ -2,11 +2,9 @@
 const Logr = require('logr');
 const logrFlat = require('logr-flat');
 const wreck = require('wreck');
-const fs = require('fs');
-const envload = require('envload');
 const humanDate = require('human-date');
 const runshell = require('runshell');
-const aug = require('aug');
+const confi = require('confi');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -52,7 +50,7 @@ const allIntervals = [];
 const registerEndpoint = (later, endpointName, endpointSpec) => {
   const laterInterval = later.parse.text(endpointSpec.interval);
   if (laterInterval.error !== -1) {
-    throw new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
+    return new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
   }
   const first = later.schedule(laterInterval).next(1);
   const executeInterval = () => {
@@ -77,25 +75,35 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   });
 };
 
-module.exports = (jobsPath, options) => {
+module.exports = (jobsPath, callback) => {
   // load-parse the yaml joblist
-  let specs = {};
-  if (jobsPath) {
-    specs = aug(true, require('js-yaml').safeLoad(fs.readFileSync(jobsPath, 'utf8')), envload('CRON'));
+  const options = { envVars: 'CRON' };
+  if (jobsPath.startsWith('http://') || jobsPath.startsWith('https://')) {
+    options.url = jobsPath;
   } else {
-    specs = envload('CRON');
+    options.configFile = jobsPath;
   }
-  // load a laterjs instance based on the timezone
-  const later = require('later');
-  if (specs.timezone) {
-    log(['info'], `Using timezone ${specs.timezone}`);
-    require('later-timezone').timezone(later, specs.timezone);
-  }
-  if (!specs.jobs) {
-    throw new Error('no jobs found');
-  }
-  Object.keys(specs.jobs).forEach((jobName) => {
-    registerEndpoint(later, jobName, specs.jobs[jobName]);
+  confi(options, (err, specs) => {
+    if (err) {
+      return callback(err);
+    }
+    // load a laterjs instance based on the timezone
+    const later = require('later');
+    if (specs.timezone) {
+      log(['info'], `Using timezone ${specs.timezone}`);
+      require('later-timezone').timezone(later, specs.timezone);
+    }
+    if (!specs.jobs) {
+      return callback(new Error('no jobs found'));
+    }
+    const jobNames = Object.keys(specs.jobs);
+    for (let i = 0; i < jobNames.length; i++) {
+      const jobName = jobNames[i];
+      const registration = registerEndpoint(later, jobName, specs.jobs[jobName]);
+      if (registration instanceof Error) {
+        return callback(registration);
+      }
+    }
   });
 };
 const stop = () => {
