@@ -52,7 +52,6 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   if (laterInterval.error !== -1) {
     return new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
   }
-  const first = later.schedule(laterInterval).next(1);
   const executeInterval = () => {
     log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
@@ -67,9 +66,10 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     executeInterval();
   }
   allIntervals.push(later.setInterval(executeInterval, laterInterval));
+  const first = later.firstRunMoment;
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
-    nextRun: first,
+    nextRun: first.format('MMM Do YYYY, h:mma z'),
     runIn: humanDate.relativeTime(first),
     options: endpointSpec
   });
