@@ -1,6 +1,6 @@
 {
   "name": "cronquest",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "hapi plugin that process a schedule of endpoint calls and data",
   "main": "index.js",
   "bin": {
@@ -16,10 +16,8 @@
     "extends": "firstandthird"
   },
   "dependencies": {
-    "aug": "^1.0.2",
-    "envload": "0.1.0",
+    "confi": "^6.1.0",
     "human-date": "1.4.0",
-    "js-yaml": "^3.8.3",
     "later": "^1.2.0",
     "later-timezone": "^1.1.0",
     "logr": "^2.1.0",
