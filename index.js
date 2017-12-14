@@ -27,22 +27,22 @@ const processScript = (scriptName, scriptSpec) => {
   });
 };
 
-const processEndpoint = (endpointName, endpointSpec) => {
+const processEndpoint = async(endpointName, endpointSpec) => {
   if (!endpointSpec.endpoint) {
     log([endpointName, 'error'], `${endpointName} didn't provide an endpoint`);
     return;
   }
-  wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
-    payload: endpointSpec.payload || {},
-    headers: endpointSpec.headers || {}
-  }, (err, res, payload) => {
-    if (err) {
-      return log([endpointName, 'error'], err);
-    }
+  try {
+    const { res, payload } = await wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
+      payload: endpointSpec.payload || {},
+      headers: endpointSpec.headers || {}
+    });
     if (res === 200) {
       log([endpointName, 'success'], payload);
     }
-  });
+  } catch (err) {
+    return log([endpointName, 'error'], err);
+  }
 };
 
 // store all intervals so we can gracefull stop them later:

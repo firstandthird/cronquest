@@ -3,27 +3,15 @@ const tap = require('tap');
 const Hapi = require('hapi');
 const cronquest = require('../index.js');
 
-let server;
-
-tap.beforeEach((done) => {
-  server = new Hapi.Server();
-  server.connection({ port: 8080 });
-  server.start(done);
-});
-
-tap.afterEach((done) => {
-  // clear running cronquest tasks before exiting:
-  cronquest.stop();
-  server.stop(done);
-});
-
-tap.test('can fetch the schedule from a remote url', (t) => {
+tap.test('can fetch the schedule from a remote url', async(t) => {
   let x = 0;
+  const server = new Hapi.Server({ port: 8080 });
+  await server.start();
   server.route({
     path: '/schedule',
     method: 'GET',
-    handler(request, reply) {
-      reply({
+    handler(request, h) {
+      return {
         timezone: 'America/Chicago',
         jobs: {
           dailyEmails: {
@@ -38,17 +26,17 @@ tap.test('can fetch the schedule from a remote url', (t) => {
             }
           }
         }
-      });
+      };
     }
   });
   server.route({
     path: '/api/jobs/blah',
     method: 'POST',
-    handler(request, reply) {
+    handler(request, h) {
       t.equal(request.payload.p1, 2);
       t.equal(request.headers.h1, '3');
       x++;
-      reply({ success: 'true' });
+      return { success: 'true' };
     }
   });
   cronquest('http://localhost:8080/schedule');
@@ -58,4 +46,7 @@ tap.test('can fetch the schedule from a remote url', (t) => {
     t.equal(x > 0, true);
     t.end();
   }, 8000);
+  // clear running cronquest tasks before exiting:
+  cronquest.stop();
+  await server.stop();
 });
