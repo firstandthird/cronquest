@@ -6,19 +6,18 @@ const path = require('path');
 
 let server;
 
-tap.beforeEach((done) => {
-  server = new Hapi.Server();
-  server.connection({ port: 8080 });
-  server.start(done);
+tap.beforeEach(async() => {
+  server = new Hapi.Server({ port: 8080 });
+  await server.start();
 });
 
-tap.afterEach((done) => {
+tap.afterEach(async() => {
   // clear running cronquest tasks before exiting:
   cronquest.stop();
-  server.stop(done);
+  await server.stop();
 });
 
-tap.test('can load a schedule of intervals', (t) => {
+tap.test('can load a schedule of intervals', async(t) => {
   let x = 0;
   server.route({
     path: '/api/jobs/blah',
@@ -27,7 +26,7 @@ tap.test('can load a schedule of intervals', (t) => {
       t.equal(request.payload.p1, 2);
       t.equal(request.headers.h1, '3');
       x++;
-      reply({ success: 'true' });
+      return { success: 'true' };
     }
   });
   cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
@@ -48,7 +47,7 @@ tap.test('will augment script with env variables', (t) => {
       t.equal(request.payload.p1, 2);
       t.equal(request.headers.h1, '3');
       x++;
-      reply({ success: 'true' });
+      return { success: 'true' };
     }
   });
   process.env.CRON_JOBS__DAILY_EMAILS__RUN_NOW = true;
@@ -70,7 +69,7 @@ tap.test('processes with the "now" label are run immediately after registration 
       t.equal(request.payload.p1, 2);
       t.equal(request.headers.h1, '3');
       x++;
-      reply({ success: 'true' });
+      return { success: 'true' };
     }
   });
   cronquest(path.join(process.cwd(), 'test', 'samples', 'now.yaml'));
