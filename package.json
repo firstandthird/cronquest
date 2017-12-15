@@ -19,7 +19,7 @@
     "confi": "^9.0.0",
     "human-date": "^1.4.0",
     "later": "^1.2.0",
-    "later-timezone": "^1.0.0",
+    "later-timezone": "^1.1.0",
     "logr": "^2.7.0",
     "logr-flat": "^3.0.0",
     "runshell": "^0.5.0",

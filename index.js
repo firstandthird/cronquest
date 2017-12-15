@@ -2,6 +2,7 @@
 const Logr = require('logr');
 const logrFlat = require('logr-flat');
 const confi = require('confi');
+const registerEndpoint = require('./lib/registerEndpoint');
 
 const log = Logr.createLogger({
   type: 'flat',
@@ -18,7 +19,6 @@ const log = Logr.createLogger({
 
 // store all intervals so we can gracefull stop them later:
 const allIntervals = [];
-const registerEndpoint = require('./lib/registerEndpoint');
 
 module.exports = async(jobsPath) => {
   // load-parse the yaml joblist
@@ -43,11 +43,13 @@ module.exports = async(jobsPath) => {
     }
   }
 };
+
 const stop = () => {
   log(['notice'], 'closing all scheduled intervals');
   allIntervals.forEach((interval) => {
     interval.clear();
   });
 };
+
 module.exports.stop = stop;
 process.on('exit', () => stop());

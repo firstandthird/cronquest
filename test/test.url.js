@@ -41,12 +41,13 @@ tap.test('can fetch the schedule from a remote url', async(t) => {
   });
   cronquest('http://localhost:8080/schedule');
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.equal(x > 0, true);
-    t.end();
-  }, 8000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(5000);
   // clear running cronquest tasks before exiting:
   cronquest.stop();
   await server.stop();
+  console.log('checking');
+  // verify endpoint was called:
+  t.equal(x > 0, true);
+  t.end();
 });

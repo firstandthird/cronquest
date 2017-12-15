@@ -31,14 +31,14 @@ tap.test('can load a schedule of intervals', async(t) => {
   });
   await cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.equal(x > 0, true);
-    t.end();
-  }, 5000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(5000);
+  // verify endpoint was called:
+  t.equal(x > 0, true);
+  t.end();
 });
 
-tap.test('will augment script with env variables', (t) => {
+tap.test('will augment script with env variables', async(t) => {
   let x = 0;
   server.route({
     path: '/api/jobs/blah',
@@ -51,16 +51,16 @@ tap.test('will augment script with env variables', (t) => {
     }
   });
   process.env.CRON_JOBS__DAILY_EMAILS__RUN_NOW = true;
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
+  await cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.equal(x > 0, true);
-    t.end();
-  }, 1000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(1000);
+  // verify endpoint was called:
+  t.equal(x > 0, true);
+  t.end();
 });
 
-tap.test('processes with the "now" label are run immediately after registration too', (t) => {
+tap.test('processes with the "now" label are run immediately after registration too', async(t) => {
   let x = 0;
   server.route({
     path: '/api/jobs/blah',
@@ -72,36 +72,37 @@ tap.test('processes with the "now" label are run immediately after registration 
       return { success: 'true' };
     }
   });
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'now.yaml'));
+  await cronquest(path.join(process.cwd(), 'test', 'samples', 'now.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.equal(x > 0, true);
-    t.end();
-  }, 1000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(1000);
+  // verify endpoint was called:
+  t.equal(x > 0, true);
+  t.end();
 });
 
-tap.test('will error if there is a bad interval', (t) => {
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'), (err) => {
+tap.test('will error if there is a bad interval', async(t) => {
+  try {
+    await cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'));
+  } catch (err) {
     t.notEqual(err, null);
     t.end();
-  });
+  }
 });
 
-tap.test('also runs shell scripts', (t) => {
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'script.yaml'));
+tap.test('also runs shell scripts', async(t) => {
+  await cronquest(path.join(process.cwd(), 'test', 'samples', 'script.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.end();
-  }, 8000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(4000);
+  t.end();
 });
 
-tap.test('also runs shell scripts with no payload specified', (t) => {
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'noPayload.yaml'));
+tap.test('also runs shell scripts with no payload specified', async(t) => {
+  await cronquest(path.join(process.cwd(), 'test', 'samples', 'noPayload.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  setTimeout(() => {
-    // verify endpoint was called:
-    t.end();
-  }, 8000);
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(4000);
+  // verify endpoint was called:
+  t.end();
 });
