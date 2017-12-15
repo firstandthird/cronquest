@@ -3,7 +3,11 @@
 const main = require('./index.js');
 
 async function f() {
-  await main(process.argv[2]);
+  try {
+    await main(process.argv[2]);
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 f();
