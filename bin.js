@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 'use strict';
 const main = require('./index.js');
-main(process.argv[2], (err) => {
-  if (err) {
-    throw err;
-  }
-});
+
+main(process.argv[2]);
