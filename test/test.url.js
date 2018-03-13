@@ -26,7 +26,7 @@ tap.test('can fetch the schedule from a remote url', async(t) => {
         timezone: 'America/Chicago',
         jobs: {
           dailyEmails: {
-            interval: 'every 2 seconds',
+            interval: '* * * * * *',
             endpoint: 'http://localhost:8080/api/jobs/blah',
             method: 'post',
             payload: {
@@ -53,7 +53,7 @@ tap.test('can fetch the schedule from a remote url', async(t) => {
   cronquest('http://localhost:8080/schedule');
   // wait a few seconds for the endpoint to be called by cronquest:
   const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  await wait(8000);
+  await wait(2000);
   // verify endpoint was called:
   t.equal(x > 0, true);
   t.end();

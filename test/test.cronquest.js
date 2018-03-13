@@ -32,7 +32,7 @@ tap.test('can load a schedule of intervals', async(t) => {
   });
   cronquest(path.join(process.cwd(), 'test', 'samples', 'recurring.yaml'));
   // wait a few seconds for the endpoint to be called by cronquest:
-  await wait(8000);
+  await wait(4000);
   // verify endpoint was called:
   t.equal(x > 0, true);
   t.end();
@@ -59,7 +59,7 @@ tap.test('will augment script with env variables', async(t) => {
   t.end();
 });
 
-tap.test('processes with the "now" label are run immediately after registration too', async(t) => {
+tap.test('processes with runNow are run immediately after registration too', async(t) => {
   let x = 0;
   server.route({
     path: '/api/jobs/blah',
