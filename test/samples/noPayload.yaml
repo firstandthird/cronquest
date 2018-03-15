@@ -1,5 +1,5 @@
 timezone: 'America/Los_Angeles'
 jobs:
   dailyEmails:
-    interval: 'every 2 seconds'
+    interval: '* * * * * *'
     script: 'ls'

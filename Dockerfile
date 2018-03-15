@@ -1,3 +1,3 @@
-FROM firstandthird/node:6.10-3-onbuild
+FROM firstandthird/node:8.8-onbuild
 
 ENTRYPOINT ["node", "bin.js"]

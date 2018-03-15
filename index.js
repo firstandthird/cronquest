@@ -1,11 +1,11 @@
-'use strict';
 const Logr = require('logr');
 const logrFlat = require('logr-flat');
 const wreck = require('wreck');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const confi = require('confi');
-
+const moment = require('moment');
+const CronJob = require('cron').CronJob;
 const log = Logr.createLogger({
   type: 'flat',
   reporters: {
@@ -27,31 +27,28 @@ const processScript = (scriptName, scriptSpec) => {
   });
 };
 
-const processEndpoint = (endpointName, endpointSpec) => {
+const processEndpoint = async(endpointName, endpointSpec) => {
   if (!endpointSpec.endpoint) {
     log([endpointName, 'error'], `${endpointName} didn't provide an endpoint`);
     return;
   }
-  wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
-    payload: endpointSpec.payload || {},
-    headers: endpointSpec.headers || {}
-  }, (err, res, payload) => {
-    if (err) {
-      return log([endpointName, 'error'], err);
-    }
+  try {
+    const { res, payload } = await wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
+      payload: endpointSpec.payload || {},
+      headers: endpointSpec.headers || {}
+    });
     if (res === 200) {
       log([endpointName, 'success'], payload);
     }
-  });
+  } catch (err) {
+    return log([endpointName, 'error'], err);
+  }
 };
 
 // store all intervals so we can gracefull stop them later:
 const allIntervals = [];
-const registerEndpoint = (later, endpointName, endpointSpec) => {
-  const laterInterval = later.parse.text(endpointSpec.interval);
-  if (laterInterval.error !== -1) {
-    return new Error(`${endpointSpec.interval} is not a valid laterjs expression`);
-  }
+
+const registerEndpoint = (endpointName, endpointSpec) => {
   const executeInterval = () => {
     log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
@@ -61,12 +58,16 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
     // 'script means it is a path to a shell script:
     return processScript(endpointName, endpointSpec);
   };
-  // if marked 'now' then fire it immediately:
-  if (endpointSpec.runNow) {
-    executeInterval();
-  }
-  allIntervals.push(later.setInterval(executeInterval, laterInterval));
-  const first = later.firstRunMoment;
+  const jobSpec = {
+    cronTime: endpointSpec.interval,
+    onTick: executeInterval,
+    start: true,
+    runOnInit: endpointSpec.runNow,
+    timeZone: endpointSpec.timezone
+  };
+  const job = new CronJob(jobSpec);
+  allIntervals.push(job);
+  const first = moment(new Date(new Date().getTime() + job._timeout._idleTimeout));
   log([endpointName, 'notice'], {
     message: `registered ${endpointName}`,
     nextRun: first.format('MMM Do YYYY, h:mma z'),
@@ -75,7 +76,7 @@ const registerEndpoint = (later, endpointName, endpointSpec) => {
   });
 };
 
-module.exports = (jobsPath, callback) => {
+module.exports = async(jobsPath) => {
   // load-parse the yaml joblist
   const options = { envVars: 'CRON' };
   if (jobsPath && (jobsPath.startsWith('http://') || jobsPath.startsWith('https://'))) {
@@ -83,33 +84,25 @@ module.exports = (jobsPath, callback) => {
   } else {
     options.configFile = jobsPath;
   }
-  confi(options, (err, specs) => {
-    if (err) {
-      return callback(err);
+  const specs = await confi(options);
+
+  // load a laterjs instance based on the timezone
+  if (!specs.jobs) {
+    throw new Error('no jobs found');
+  }
+  const jobNames = Object.keys(specs.jobs);
+  for (let i = 0; i < jobNames.length; i++) {
+    const jobName = jobNames[i];
+    const registration = registerEndpoint(jobName, specs.jobs[jobName]);
+    if (registration instanceof Error) {
+      throw registration;
     }
-    // load a laterjs instance based on the timezone
-    const later = require('later');
-    if (specs.timezone) {
-      log(['info'], `Using timezone ${specs.timezone}`);
-      require('later-timezone').timezone(later, specs.timezone);
-    }
-    if (!specs.jobs) {
-      return callback(new Error('no jobs found'));
-    }
-    const jobNames = Object.keys(specs.jobs);
-    for (let i = 0; i < jobNames.length; i++) {
-      const jobName = jobNames[i];
-      const registration = registerEndpoint(later, jobName, specs.jobs[jobName]);
-      if (registration instanceof Error) {
-        return callback(registration);
-      }
-    }
-  });
+  }
 };
 const stop = () => {
   log(['notice'], 'closing all scheduled intervals');
   allIntervals.forEach((interval) => {
-    interval.clear();
+    interval.stop();
   });
 };
 module.exports.stop = stop;
