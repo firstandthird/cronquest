@@ -1,0 +1,1 @@
+# cronquest [![Build Status](https://travis-ci.org/firstandthird/cronquest.svg?branch=master)](https://travis-ci.org/firstandthird/cronquest) [![Coverage Status](https://coveralls.io/repos/github/firstandthird/cronquest/badge.svg?branch=master)](https://coveralls.io/github/firstandthird/cronquest?branch=master)
