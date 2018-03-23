@@ -51,7 +51,7 @@ const processEndpoint = async(endpointName, endpointSpec) => {
 // store all intervals so we can gracefull stop them later:
 const allIntervals = [];
 
-const registerEndpoint = (endpointName, endpointSpec) => {
+const registerEndpoint = (endpointName, endpointSpec, timezone) => {
   const executeInterval = () => {
     log([endpointName, 'notice', 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
@@ -66,7 +66,7 @@ const registerEndpoint = (endpointName, endpointSpec) => {
     onTick: executeInterval,
     start: true,
     runOnInit: endpointSpec.runNow,
-    timeZone: endpointSpec.timezone
+    timezone
   };
   const job = new CronJob(jobSpec);
   allIntervals.push(job);
@@ -88,7 +88,6 @@ module.exports = async(jobsPath) => {
     options.configFile = jobsPath;
   }
   const specs = await confi(options);
-
   // load a laterjs instance based on the timezone
   if (!specs.jobs) {
     throw new Error('no jobs found');
@@ -96,7 +95,7 @@ module.exports = async(jobsPath) => {
   const jobNames = Object.keys(specs.jobs);
   for (let i = 0; i < jobNames.length; i++) {
     const jobName = jobNames[i];
-    const registration = registerEndpoint(jobName, specs.jobs[jobName]);
+    const registration = registerEndpoint(jobName, specs.jobs[jobName], specs.timezone);
     if (registration instanceof Error) {
       throw registration;
     }

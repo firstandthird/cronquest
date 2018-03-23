@@ -1,4 +1,3 @@
-timezone: 'America/Chicago'
 jobs:
   dailyEmails:
     interval: 'all day long and all night strong'
