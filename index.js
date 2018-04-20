@@ -38,9 +38,10 @@ const processEndpoint = async(endpointName, endpointSpec) => {
   try {
     const { res, payload } = await wreck[endpointSpec.method || 'post'](endpointSpec.endpoint, {
       payload: endpointSpec.payload || {},
-      headers: endpointSpec.headers || {}
+      headers: endpointSpec.headers || {},
+      json: true
     });
-    if (res === 200) {
+    if (res.statusCode === 200) {
       log([endpointName, 'success'], payload);
     }
   } catch (err) {
@@ -53,7 +54,7 @@ const allIntervals = [];
 
 const registerEndpoint = (endpointName, endpointSpec, timezone) => {
   const executeInterval = () => {
-    log([endpointName, 'notice', 'running'], `running ${endpointName}`);
+    log([endpointName, 'running'], `running ${endpointName}`);
     // 'endpoint' means it is a url to invoke:
     if (endpointSpec.endpoint) {
       return processEndpoint(endpointName, endpointSpec);
@@ -71,7 +72,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
   const job = new CronJob(jobSpec);
   allIntervals.push(job);
   const first = moment(new Date(new Date().getTime() + job._timeout._idleTimeout));
-  log([endpointName, 'notice'], {
+  log([endpointName, 'registered'], {
     message: `registered ${endpointName}`,
     nextRun: first.format('MMM Do YYYY, h:mma z'),
     runIn: humanDate.relativeTime(first),
@@ -81,6 +82,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
 
 module.exports = async(jobsPath) => {
   // load-parse the yaml joblist
+  log([], 'starting cronquest...');
   const options = { envVars: 'CRON' };
   if (jobsPath && (jobsPath.startsWith('http://') || jobsPath.startsWith('https://'))) {
     options.url = jobsPath;
@@ -102,7 +104,7 @@ module.exports = async(jobsPath) => {
   }
 };
 const stop = () => {
-  log(['notice'], 'closing all scheduled intervals');
+  log([], 'closing all scheduled intervals');
   allIntervals.forEach((interval) => {
     interval.stop();
   });
