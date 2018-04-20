@@ -82,7 +82,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
 
 module.exports = async(jobsPath) => {
   // load-parse the yaml joblist
-  log([], 'starting cronquest...');
+  log(['starting'], 'starting cronquest...');
   const options = { envVars: 'CRON' };
   if (jobsPath && (jobsPath.startsWith('http://') || jobsPath.startsWith('https://'))) {
     options.url = jobsPath;
@@ -104,7 +104,7 @@ module.exports = async(jobsPath) => {
   }
 };
 const stop = () => {
-  log([], 'closing all scheduled intervals');
+  log(['closing'], 'closing all scheduled intervals');
   allIntervals.forEach((interval) => {
     interval.stop();
   });
