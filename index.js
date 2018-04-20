@@ -67,7 +67,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
     onTick: executeInterval,
     start: true,
     runOnInit: endpointSpec.runNow,
-    timezone
+    timeZone: timezone
   };
   const job = new CronJob(jobSpec);
   allIntervals.push(job);
