@@ -128,3 +128,23 @@ tap.test('cronquest loading can be delayed with the delay option so dependencies
   t.equal(x > 0, true);
   t.end();
 });
+
+tap.test('processes with enabled: false do not run', async(t) => {
+  let x = 0;
+  server.route({
+    path: '/api/jobs/blah',
+    method: 'POST',
+    handler(request, h) {
+      t.equal(request.payload.p1, 2);
+      t.equal(request.headers.h1, '3');
+      x++;
+      return { success: 'true' };
+    }
+  });
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'disabled.yaml'));
+  // wait a few seconds for the endpoint to be called by cronquest:
+  await wait(1000);
+  // verify endpoint was called:
+  t.equal(x, 0);
+  t.end();
+});
