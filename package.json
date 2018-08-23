@@ -1,6 +1,6 @@
 {
   "name": "cronquest",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "hapi plugin that process a schedule of endpoint calls and data",
   "main": "index.js",
   "bin": {
