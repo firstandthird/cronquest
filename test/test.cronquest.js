@@ -79,7 +79,7 @@ tap.test('processes with runNow are run immediately after registration too', asy
   t.end();
 });
 
-tap.test('processes with runNow can be delayed with the startDelay option', async(t) => {
+tap.test('cronquest loading can be delayed with the delay option so dependencies can load first', async(t) => {
   let x = 0;
   server.route({
     path: '/api/jobs/blah',
@@ -91,7 +91,7 @@ tap.test('processes with runNow can be delayed with the startDelay option', asyn
       return { success: 'true' };
     }
   });
-  cronquest(path.join(process.cwd(), 'test', 'samples', 'delay.yaml'));
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'now.yaml'), 3000);
   // wait a few seconds, the endpoint shouldn't be called yet:
   await wait(1000);
   // verify endpoint was called:
