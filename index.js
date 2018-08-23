@@ -62,6 +62,12 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
     // 'script means it is a path to a shell script:
     return processScript(endpointName, endpointSpec);
   };
+  if (endpointSpec.enabled === false) {
+    return log([endpointName, 'not registered'], {
+      message: `${endpointName} is marked as disabled and will not run`,
+      options: endpointSpec
+    });
+  }
   const jobSpec = {
     cronTime: endpointSpec.interval,
     onTick: executeInterval,
