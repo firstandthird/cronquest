@@ -79,6 +79,30 @@ tap.test('processes with runNow are run immediately after registration too', asy
   t.end();
 });
 
+tap.test('processes with runNow can be delayed with the startDelay option', async(t) => {
+  let x = 0;
+  server.route({
+    path: '/api/jobs/blah',
+    method: 'POST',
+    handler(request, h) {
+      t.equal(request.payload.p1, 2);
+      t.equal(request.headers.h1, '3');
+      x++;
+      return { success: 'true' };
+    }
+  });
+  cronquest(path.join(process.cwd(), 'test', 'samples', 'delay.yaml'));
+  // wait a few seconds, the endpoint shouldn't be called yet:
+  await wait(1000);
+  // verify endpoint was called:
+  t.equal(x, 0);
+  // wait a few more seconds, the endpoint should be called now:
+  await wait(5000);
+  // verify endpoint was called:
+  t.equal(x > 0, true);
+  t.end();
+});
+
 tap.test('will error if there is a bad interval', async(t) => {
   try {
     await cronquest(path.join(process.cwd(), 'test', 'samples', 'broken.yaml'));

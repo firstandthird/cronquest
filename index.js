@@ -69,15 +69,30 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
     runOnInit: endpointSpec.runNow,
     timeZone: timezone
   };
-  const job = new CronJob(jobSpec);
-  allIntervals.push(job);
-  const first = moment(new Date(new Date().getTime() + job._timeout._idleTimeout));
-  log([endpointName, 'registered'], {
-    message: `registered ${endpointName}`,
-    nextRun: first.format('MMM Do YYYY, h:mma z'),
-    runIn: humanDate.relativeTime(first),
-    options: endpointSpec
-  });
+  const launch = () => {
+    const job = new CronJob(jobSpec);
+    allIntervals.push(job);
+    const first = moment(new Date(new Date().getTime() + job._timeout._idleTimeout));
+    log([endpointName, 'registered'], {
+      message: `registered ${endpointName}`,
+      nextRun: first.format('MMM Do YYYY, h:mma z'),
+      runIn: humanDate.relativeTime(first),
+      options: endpointSpec
+    });
+  };
+  if (endpointSpec.startDelay) {
+    const startDelay = endpointSpec.startDelay * 1000;
+    const nextRun = new Date(new Date().getTime() + startDelay);
+    log([endpointName, 'registered'], {
+      message: `registered ${endpointName}`,
+      startDelay,
+      runIn: humanDate.relativeTime(nextRun),
+      nextRun,
+      options: endpointSpec
+    });
+    return setTimeout(launch, startDelay);
+  }
+  launch();
 };
 
 module.exports = async(jobsPath) => {
