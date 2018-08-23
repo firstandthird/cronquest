@@ -1,0 +1,11 @@
+startDelay: 3000
+jobs:
+  dailyEmails:
+    runNow: true
+    interval: '* 1 * * * *'
+    endpoint: 'http://localhost:8080/api/jobs/blah'
+    method: 'post'
+    payload:
+      p1: 2
+    headers:
+      h1: 3
