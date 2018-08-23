@@ -86,7 +86,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
   });
 };
 
-module.exports = async(jobsPath) => {
+module.exports = async(jobsPath, delay = 0) => {
   // load-parse the yaml joblist
   log(['starting'], 'starting cronquest...');
   const options = { envVars: 'CRON' };
@@ -96,6 +96,9 @@ module.exports = async(jobsPath) => {
     options.configFile = jobsPath;
   }
   const specs = await confi(options);
+  if (specs.startDelay) {
+    await new Promise(resolve => setTimeout(resolve, specs.startDelay));
+  }
   // load a laterjs instance based on the timezone
   if (!specs.jobs) {
     throw new Error('no jobs found');
