@@ -4,8 +4,7 @@ const wreck = require('wreck');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const confi = require('confi');
-const cron = require('cron');
-const CronJob = cron.CronJob;
+const CronJob = require('cron').CronJob;
 const log = Logr.createLogger({
   type: 'flat',
   reporters: {
