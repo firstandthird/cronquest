@@ -4,8 +4,8 @@ const wreck = require('wreck');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const confi = require('confi');
-const moment = require('moment');
-const CronJob = require('cron').CronJob;
+const cron = require('cron');
+const CronJob = cron.CronJob;
 const log = Logr.createLogger({
   type: 'flat',
   reporters: {
@@ -77,7 +77,7 @@ const registerEndpoint = (endpointName, endpointSpec, timezone) => {
   };
   const job = new CronJob(jobSpec);
   allIntervals.push(job);
-  const first = moment(new Date(new Date().getTime() + job._timeout._idleTimeout));
+  const first = job.nextDate();
   log([endpointName, 'registered'], {
     message: `registered ${endpointName}`,
     nextRun: first.format('MMM Do YYYY, h:mma z'),
