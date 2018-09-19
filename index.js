@@ -1,5 +1,4 @@
 const Logr = require('logr');
-const logrFlat = require('logr-flat');
 const logfmt = require('logr-logfmt');
 const wreck = require('wreck');
 const humanDate = require('human-date');
@@ -8,27 +7,13 @@ const confi = require('confi');
 const CronJob = require('cron').CronJob;
 
 const reporters = {
-  flat: {
-    reporter: logrFlat,
+  logfmt: {
+    reporter: logfmt,
     options: {
-      timestamp: false,
-      appColor: true,
-      theme: {
-        keys: 'cyan'
-      }
+      appColor: true
     }
   }
 };
-
-if (process.env.LOGFMT) {
-  reporters.logfmt = {
-    reporter: logfmt,
-    options: {
-      color: true,
-      appColor: true
-    }
-  };
-}
 
 const log = Logr.createLogger({
   reporters
