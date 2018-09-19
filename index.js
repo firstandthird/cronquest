@@ -1,24 +1,38 @@
 const Logr = require('logr');
 const logrFlat = require('logr-flat');
+const logfmt = require('logr-logfmt');
 const wreck = require('wreck');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const confi = require('confi');
 const CronJob = require('cron').CronJob;
-const log = Logr.createLogger({
-  type: 'flat',
-  reporters: {
-    flat: {
-      reporter: logrFlat,
-      options: {
-        timestamp: false,
-        appColor: true,
-        theme: {
-          keys: 'cyan'
-        }
+
+const reporters = {
+  flat: {
+    reporter: logrFlat,
+    options: {
+      timestamp: false,
+      appColor: true,
+      theme: {
+        keys: 'cyan'
       }
     }
   }
+};
+
+if (process.env.LOGFMT) {
+  reporters.logfmt = {
+    reporter: logfmt,
+    options: {
+      color: true,
+      appColor: true
+    }
+  };
+}
+
+const log = Logr.createLogger({
+  type: 'flat',
+  reporters
 });
 const processScript = (scriptName, scriptSpec) => {
   runshell(scriptSpec.script, scriptSpec.payload || {}, (err, data) => {
