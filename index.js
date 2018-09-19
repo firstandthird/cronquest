@@ -9,9 +9,7 @@ const CronJob = require('cron').CronJob;
 const reporters = {
   logfmt: {
     reporter: logfmt,
-    options: {
-      appColor: true
-    }
+    options: {}
   }
 };
 
