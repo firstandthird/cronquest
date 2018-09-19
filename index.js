@@ -31,7 +31,6 @@ if (process.env.LOGFMT) {
 }
 
 const log = Logr.createLogger({
-  type: 'flat',
   reporters
 });
 const processScript = (scriptName, scriptSpec) => {
