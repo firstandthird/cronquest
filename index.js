@@ -1,21 +1,12 @@
-const Logr = require('logr');
-const logfmt = require('logr-logfmt');
+const logall = require('logr-all');
 const wreck = require('wreck');
 const humanDate = require('human-date');
 const runshell = require('runshell');
 const confi = require('confi');
 const CronJob = require('cron').CronJob;
 
-const reporters = {
-  logfmt: {
-    reporter: logfmt,
-    options: {}
-  }
-};
+const log = logall({});
 
-const log = Logr.createLogger({
-  reporters
-});
 const processScript = (scriptName, scriptSpec) => {
   runshell(scriptSpec.script, scriptSpec.payload || {}, (err, data) => {
     if (err) {
